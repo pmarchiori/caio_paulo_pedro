@@ -10,21 +10,22 @@ O trabalho está dividido em duas partes:
 
 ## Estrutura de Pastas
 
+```text
 ├── data/            # Dataset em .csv usado na análise
 ├── eda/             # Notebook (.ipynb) com a análise exploratória dos dados
 ├── fastapi/         # Código-fonte da API (main.py, routers, models, security)
 ├── others/          # DFD (Data Flow Diagram) da API em .png
 ├── README.md
 └── requirements.txt # Dependências da API
-
+```
 
 
 ## Instalação
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/pmarchiori/caio_guilherme_paulo_pedro.git
-cd caio_guilherme_paulo_pedro
+git clone https://github.com/pmarchiori/caio_paulo_pedro.git
+cd caio_paulo_pedro
 ```
 
 Crie e ative um ambiente virtual:
@@ -61,4 +62,4 @@ A API vai ficar disponível em http://127.0.0.1:8000. A documentação interativ
 
 ### Rodando o EDA
 Abra o notebook: 
-**eda/Caio_Pereira_Guilherme_Guigo_Paulo_Dias_Pedro_Araujo_PB_TP1.ipynb**
+**eda/Caio_Pereira_Paulo_Dias_Pedro_Araujo_PB_TP1.ipynb**
