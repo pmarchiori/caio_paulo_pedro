@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from database import SessionDep
 from models import SigninRequest, TokenResponse, User, UserCreate, UserRead
+from rate_limit import limiter
 from security import create_access_token, hash_password, verify_password
 
 oauth_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -45,5 +46,10 @@ def signin(payload: SigninRequest, session: SessionDep):
 
 
 @oauth_router.post("/token", response_model=TokenResponse)
-def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequestForm = Depends()):
+@limiter.limit("10/minute")
+def login_for_access_token(
+    request: Request,
+    session: SessionDep,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+):
     return authenticate(session, form_data.username, form_data.password)
