@@ -54,6 +54,15 @@ uvicorn main:app --reload
 
 A API vai ficar disponível em http://127.0.0.1:8000. A documentação interativa (Swagger) fica em http://127.0.0.1:8000/docs.
 
+### Executando os testes
+
+Entre na pasta `fastapi/` e execute o pytest:
+
+```bash
+cd fastapi
+pytest -v
+```
+
 ### Rotas disponíveis:
 
 *GET /health* - verifica se a API está no ar.
@@ -63,3 +72,12 @@ A API vai ficar disponível em http://127.0.0.1:8000. A documentação interativ
 ### Rodando o EDA
 Abra o notebook: 
 **eda/Caio_Pereira_Paulo_Dias_Pedro_Araujo_PB_TP1.ipynb**
+
+# Customer Support Ticket - Projeto de Bloco (TP2)
+
+### Rotas disponíveis:
+
+*POST /auth/signup - Faz o cadastro do usuário na aplicação.
+*POST /auth/signin - Faz o login do usuário na aplicação.
+
+*OBS: Endpoint /auth/token fica disponível apenas para o uso interno do swagger.
