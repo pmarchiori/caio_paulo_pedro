@@ -1,10 +1,12 @@
-from fastapi import FastAPI, Depends
-from routers import api_router
-from security import get_current_user
-from routers import oauth_router
+from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI
 
 from database.seed import seed
-from contextlib import asynccontextmanager
+from middlewares import configure_middlewares
+from routers import api_router, oauth_router
+from security import get_current_user
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,6 +14,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+configure_middlewares(app)
 
 @app.get("/me")
 async def read_current_user(current_user: dict = Depends(get_current_user)):
