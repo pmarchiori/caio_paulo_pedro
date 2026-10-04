@@ -54,6 +54,15 @@ uvicorn main:app --reload
 
 A API vai ficar disponível em http://127.0.0.1:8000. A documentação interativa (Swagger) fica em http://127.0.0.1:8000/docs.
 
+### Executando os testes
+
+Entre na pasta `fastapi/` e execute o pytest:
+
+```bash
+cd fastapi
+pytest -v
+```
+
 ### Rotas disponíveis:
 
 *GET /health* - verifica se a API está no ar.
