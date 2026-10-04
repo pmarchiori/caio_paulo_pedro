@@ -60,7 +60,11 @@ def get_my_prediction(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
 ):
-    prediction = session.get(Prediction, prediction_id)
-    if prediction is None or prediction.owner_id != current_user.id:
+    statement = select(Prediction).where(
+        Prediction.id == prediction_id,
+        Prediction.owner_id == current_user.id,
+    )
+    prediction = session.exec(statement).first()
+    if prediction is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Prediction não encontrada")
     return prediction
