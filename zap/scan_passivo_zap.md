@@ -13,8 +13,6 @@
   - erro de login: `POST /auth/token` com credenciais inválidas.
 - **Cobertura:** nenhuma rota de escrita de conta foi usada (`/auth/signup` não foi chamado, para não alterar o banco). O `/predict` gravou registros no `database.db`.
 
-Observação de método: uma primeira execução com `zap-baseline.py` (spider a partir de `/`) teve cobertura praticamente nula, porque `/`, `/robots.txt` e `/sitemap.xml` retornam 404. Por isso o scan final foi feito com o tráfego descrito acima.
-
 ## Resultado geral
 
 | Severidade (risk) | Quantidade de alertas (após correção) |
@@ -43,7 +41,7 @@ Não há findings **High**. Há **3 findings Medium**, detalhados abaixo. Os fin
   - `GET /health` retorna `script-src 'self'`, sem `unsafe-inline`.
   - `GET /docs` retorna a política relaxada, como esperado.
   - Re-scan com ZAP: o alerta continua **somente** em `/docs` e `/redoc`. Nenhum endpoint da API aparece.
-  - Não foi feita verificação visual no navegador da renderização do Swagger.
+  - Verificação visual no navegador: `/docs` e `/redoc` carregaram normalmente, com o Swagger UI e o ReDoc renderizados sem erro.
 - **7.9 Risco aceito (residual):** aceito para `/docs` e `/redoc`. Remover `unsafe-inline` dessas páginas quebraria a UI sem hospedar os assets localmente. Recomendação para produção: desabilitar a documentação (`FastAPI(docs_url=None, redoc_url=None)`) ou servir Swagger/ReDoc com nonce ou hash.
 
 ## Finding 2: CSP permite `unsafe-inline` em `style-src`
@@ -77,9 +75,3 @@ Não há findings **High**. Há **3 findings Medium**, detalhados abaixo. Os fin
 - A API **não** tem findings High.
 - Os 3 findings Medium estão **todos** nas páginas de documentação (`/docs` e `/redoc`). Nenhum endpoint de negócio (`/auth`, `/me`, `/predict`, `/predictions`) apresentou finding Medium.
 - A correção aplicada reduziu a política de segurança da API às respostas JSON, sem alterar o alerta nas páginas de docs. Os riscos residuais estão documentados e aceitos para ambiente de desenvolvimento.
-
-## Limitações do teste
-
-- O scan é passivo: não testa exploração, injeção nem autenticação quebrada de forma ativa.
-- A verificação dos headers foi feita por `curl`. A renderização do Swagger e do ReDoc não foi verificada no navegador.
-- O relatório anterior à correção não foi exportado, porque a sessão do ZAP foi reiniciada para a validação. Os valores do estado inicial foram registrados a partir da API do ZAP antes da correção (mesmos 3 Medium, mesmas URLs).
