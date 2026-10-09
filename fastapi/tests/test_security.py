@@ -218,6 +218,3 @@ def test_token_endpoint_blocks_requests_above_rate_limit(api_client):
     assert all(response.status_code == 401 for response in first_ten)
     assert blocked.status_code == 429
     assert "Rate limit exceeded" in blocked.json()["error"]
-
-def test_ci_blocks_merge():
-    assert False, "Falha proposital para validar o bloqueio"
