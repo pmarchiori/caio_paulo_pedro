@@ -218,3 +218,85 @@ def test_token_endpoint_blocks_requests_above_rate_limit(api_client):
     assert all(response.status_code == 401 for response in first_ten)
     assert blocked.status_code == 429
     assert "Rate limit exceeded" in blocked.json()["error"]
+
+
+# ---------- Auditoria final (TP3 item 4) ----------
+
+def test_me_does_not_expose_password_hash(api_client):
+    client, _ = api_client
+
+    response = client.get("/me", headers=alice_headers(client))
+
+    assert response.status_code == 200
+    assert set(response.json()) == {"id", "username"}
+    assert "hashed_password" not in response.text
+
+
+def test_signin_blocks_requests_above_rate_limit(api_client):
+    client, _ = api_client
+    credentials = {"username": "alice_http", "password": "senha-incorreta"}
+
+    first_ten = [client.post("/auth/signin", json=credentials) for _ in range(10)]
+    blocked = client.post("/auth/signin", json=credentials)
+
+    assert all(response.status_code == 401 for response in first_ten)
+    assert blocked.status_code == 429
+
+
+def test_signup_rejects_weak_or_invalid_input(api_client):
+    client, _ = api_client
+
+    short_password = client.post(
+        "/auth/signup", json={"username": "novo_usuario", "password": "123"}
+    )
+    bad_username = client.post(
+        "/auth/signup", json={"username": "x' OR '1'='1", "password": "senha-segura-1"}
+    )
+
+    assert short_password.status_code == 422
+    assert bad_username.status_code == 422
+
+
+def test_predict_rejects_oversized_text(api_client):
+    client, _ = api_client
+
+    response = client.post(
+        "/predict", json={"text": "a" * 2001}, headers=alice_headers(client)
+    )
+
+    assert response.status_code == 422
+
+
+def test_docs_are_served_without_external_resources_or_unsafe_inline(api_client):
+    client, _ = api_client
+
+    response = client.get("/docs")
+    csp = response.headers["content-security-policy"]
+
+    assert response.status_code == 200
+    assert "http://" not in response.text and "https://" not in response.text
+    assert "unsafe-inline" not in csp
+    assert "cdn.jsdelivr.net" not in csp
+    assert client.get("/static/swagger/swagger-ui-bundle.js").status_code == 200
+
+
+def test_openapi_schema_is_documented(api_client):
+    client, _ = api_client
+
+    schema = client.get("/openapi.json").json()
+
+    assert schema["info"]["title"] and schema["info"]["description"]
+    for path, methods in schema["paths"].items():
+        for method, operation in methods.items():
+            assert operation.get("summary"), f"{method.upper()} {path} sem summary"
+
+
+def test_responses_include_hardening_headers(api_client):
+    client, _ = api_client
+
+    response = client.get("/health")
+
+    assert response.headers["cross-origin-resource-policy"] == "same-origin"
+    assert response.headers["cross-origin-embedder-policy"] == "require-corp"
+    assert response.headers["permissions-policy"]
+    assert response.headers["cache-control"] == "no-store"

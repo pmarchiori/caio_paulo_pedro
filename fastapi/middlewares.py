@@ -21,21 +21,6 @@ CSP_API = (
     "form-action 'self'"
 )
 
-# Swagger UI e ReDoc dependem de scripts/estilos inline e de CDN.
-CSP_DOCS = (
-    "default-src 'self'; "
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-    "img-src 'self' data: https://fastapi.tiangolo.com; "
-    "font-src 'self' data:; "
-    "connect-src 'self'; "
-    "frame-ancestors 'none'; "
-    "base-uri 'self'; "
-    "form-action 'self'"
-)
-
-DOCS_PATHS = {"/docs", "/redoc"}
-
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
@@ -48,9 +33,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         )
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Security-Policy"] = (
-            CSP_DOCS if request.url.path in DOCS_PATHS else CSP_API
+        response.headers["Content-Security-Policy"] = CSP_API
+        response.headers["Permissions-Policy"] = (
+            "camera=(), microphone=(), geolocation=(), payment=()"
         )
+        response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+        response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Cache-Control"] = "no-store"
         return response
 
 def configure_middlewares(app: FastAPI) -> None:

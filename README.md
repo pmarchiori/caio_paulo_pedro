@@ -81,3 +81,22 @@ Abra o notebook:
 *POST /auth/signin - Faz o login do usuário na aplicação.
 
 *OBS: Endpoint /auth/token fica disponível apenas para o uso interno do swagger.
+
+# Auditoria final de segurança (TP3)
+
+### Correções aplicadas
+- `/me` não expõe mais `hashed_password` (rota duplicada em `main.py` removida; vale a de `routers/router.py`, com `UserRead`).
+- `/docs` agora serve o Swagger UI **localmente** (`fastapi/static/swagger/`, swagger-ui-dist 5.17.14), sem CDN e sem script inline. A CSP estrita (`script-src 'self'`, `style-src 'self'`) vale para todas as rotas. `/redoc` foi desabilitado. Isso elimina os 3 findings Medium do ZAP (CSP `script-src`/`style-src` com `unsafe-inline` e SRI ausente).
+- Rate limiting em `/auth/signin` (10/min), `/auth/signup` (5/min), `/auth/token` (10/min) e `/predict` (30/min).
+- Validação de entrada: `username` 3-50 (letras, números, `_ . -`), `password` 8-72, `text` 1-2000.
+- OpenAPI documentado (`summary`, `description`, `responses`, tags, exemplos).
+
+### Preparação para pentest
+```bash
+cp .env.example .env     # troque o SECRET_KEY por um valor aleatório
+cd fastapi
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+- Docs: `http://<IP>:8000/docs`
+- Usuários de teste (criados pelo seed): `alice`/`alice123`, `bruno`/`bruno123`
+- Testes: `cd fastapi && pytest tests/ -v`
