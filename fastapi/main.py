@@ -19,6 +19,14 @@ async def lifespan(app: FastAPI):
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
+# [ZAP Finding 1, 2 e 3 - CSP com 'unsafe-inline' e SRI ausente (Medium)]
+# CORRIGIDO: o Swagger UI do FastAPI carregava JS/CSS de CDN com script inline.
+# Agora docs_url=None desliga a página padrão, os assets ficam em /static
+# (mesma origem) e o /docs abaixo usa um init.js externo, sem script inline.
+# Com isso a CSP estrita vale para todas as rotas e não há recurso de terceiros.
+# redoc_url=None remove o /redoc, que também usava CDN.
+
+
 app = FastAPI(
     title="API de Atendimento ao Cliente",
     version="1.0.0",
@@ -42,6 +50,10 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 configure_middlewares(app)
 configure_rate_limiting(app)
+
+# [ZAP Finding 4 - Vulnerable JS Library: DOMPurify 3.1.4 (Medium)]
+# CORRIGIDO: static/swagger/ usa swagger-ui-dist 5.33.2 (antes 5.17.14).
+# Ao atualizar o Swagger, o ZAP e o retire.js deixaram de reportar a vulnerabilidade.
 
 @app.get("/docs", include_in_schema=False)
 def swagger_docs() -> HTMLResponse:

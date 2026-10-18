@@ -9,6 +9,11 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
+# [ZAP Finding 1 e 2 - CSP com 'unsafe-inline' em script-src e style-src (Medium)]
+# CORRIGIDO: uma única CSP estrita para todas as respostas, inclusive /docs.
+# script-src e style-src só aceitam a própria origem ('self'), sem 'unsafe-inline'.
+# A antiga CSP_DOCS (relaxada para o Swagger via CDN) foi removida.
+
 CSP_API = (
     "default-src 'self'; "
     "script-src 'self'; "
@@ -20,6 +25,10 @@ CSP_API = (
     "base-uri 'self'; "
     "form-action 'self'"
 )
+
+# [ZAP Findings 5, 6 e 7 - Low/Informational]
+# Permissions-Policy, Cross-Origin-Embedder/Opener/Resource-Policy e
+# Cache-Control: no-store adicionados para zerar os alertas Low do ZAP.
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(

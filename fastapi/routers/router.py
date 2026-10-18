@@ -27,6 +27,10 @@ async def health() -> dict:
         "status": "Funcionando..."
     }
 
+# [Auditoria final - vazamento de hash de senha]
+# CORRIGIDO: havia um /me duplicado em main.py sem response_model, que devolvia
+# o usuário inteiro (incluindo hashed_password). Foi removido; esta rota usa
+# response_model=UserRead, que só expõe id e username.
 
 @api_router.get(
     "/me",
