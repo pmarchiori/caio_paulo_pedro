@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI
 from database.seed import seed
 from middlewares import configure_middlewares
 from rate_limit import configure_rate_limiting
-from routers import api_router, oauth_router
+from routes import api_router, oauth_router
 from security import get_current_user
 
 

@@ -1,4 +1,4 @@
-import random
+import hashlib
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import select
 
@@ -10,6 +10,15 @@ from security import get_current_user
 api_router = APIRouter()
 
 MOCK_INTENTS = ["saudacao", "duvida_produto", "reclamacao", "despedida"]
+
+
+def mock_predict(text: str) -> tuple[str, float]:
+    """Simula a saída de um modelo de classificação de forma determinística:
+    o mesmo texto sempre produz a mesma intenção e confiança, facilitando testes."""
+    digest = hashlib.sha256(text.encode("utf-8")).digest()
+    intent = MOCK_INTENTS[digest[0] % len(MOCK_INTENTS)]
+    confidence = round(0.7 + (digest[1] / 255) * 0.29, 2)
+    return intent, confidence
 
 
 @api_router.get("/health")
@@ -30,8 +39,7 @@ def predict(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
 ):
-    fake_intent = random.choice(MOCK_INTENTS)
-    fake_confidence = round(random.uniform(0.7, 0.99), 2)
+    fake_intent, fake_confidence = mock_predict(payload.text)
 
     prediction = Prediction(
         text=payload.text,
