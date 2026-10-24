@@ -1,0 +1,10 @@
+venv/
+data/
+eda/
+others/
+zap/
+.git/
+**/__pycache__/
+**/*.pyc
+fastapi/database.db
+fastapi/tests/
