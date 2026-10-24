@@ -13,7 +13,7 @@ O trabalho está dividido em duas partes:
 ```text
 ├── data/            # Dataset em .csv usado na análise
 ├── eda/             # Notebook (.ipynb) com a análise exploratória dos dados
-├── fastapi/         # Código-fonte da API (main.py, routers, models, security)
+├── fastapi/         # Código-fonte da API (main.py, routes, models, security)
 ├── others/          # DFD (Data Flow Diagram) da API em .png
 ├── README.md
 └── requirements.txt # Dependências da API
