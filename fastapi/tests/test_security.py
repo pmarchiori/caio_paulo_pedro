@@ -20,7 +20,7 @@ from database import get_session  # noqa: E402
 from main import app  # noqa: E402
 from models import Prediction, PredictRequest, User  # noqa: E402
 from rate_limit import limiter  # noqa: E402
-from routers.router import get_my_prediction  # noqa: E402
+from routes.router import get_my_prediction  # noqa: E402
 from security import hash_password  # noqa: E402
 from security.oauth2 import oauth2_scheme  # noqa: E402
 

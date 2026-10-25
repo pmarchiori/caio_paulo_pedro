@@ -1,4 +1,4 @@
-import random
+import hashlib
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlmodel import select
 
@@ -15,6 +15,13 @@ TOO_MANY = {429: {"description": "Limite de requisições excedido."}}
 
 MOCK_INTENTS = ["saudacao", "duvida_produto", "reclamacao", "despedida"]
 
+def mock_predict(text: str) -> tuple[str, float]:
+    """Gera uma previsão determinística para facilitar os testes."""
+    digest = hashlib.sha256(text.encode("utf-8")).digest()
+    intent = MOCK_INTENTS[digest[0] % len(MOCK_INTENTS)]
+    confidence = round(0.7 + (digest[1] / 255) * 0.29, 2)
+    return intent, confidence
+
 
 @api_router.get(
     "/health",
@@ -22,6 +29,7 @@ MOCK_INTENTS = ["saudacao", "duvida_produto", "reclamacao", "despedida"]
     summary="Verifica se a API está no ar",
     description="Rota pública, sem autenticação. Usada em health checks.",
 )
+
 async def health() -> dict:
     return {
         "status": "Funcionando..."
@@ -63,8 +71,7 @@ def predict(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
 ):
-    fake_intent = random.choice(MOCK_INTENTS)
-    fake_confidence = round(random.uniform(0.7, 0.99), 2)
+    fake_intent, fake_confidence = mock_predict(payload.text)
 
     prediction = Prediction(
         text=payload.text,
