@@ -15,6 +15,7 @@ from starlette.requests import Request
 FASTAPI_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(FASTAPI_DIR))
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
+os.environ["ADMIN_USERNAME"] = "alice_http"
 
 from database import get_session  # noqa: E402
 from main import app  # noqa: E402
@@ -300,3 +301,25 @@ def test_responses_include_hardening_headers(api_client):
     assert response.headers["cross-origin-embedder-policy"] == "require-corp"
     assert response.headers["permissions-policy"]
     assert response.headers["cache-control"] == "no-store"
+
+
+def test_predict_blocks_authenticated_non_admin(api_client):
+    client, _ = api_client
+
+    response = client.post(
+        "/predict",
+        json={"text": "Preciso de ajuda com meu pedido"},
+        headers={
+            "Authorization": (
+                "Bearer "
+                + signin(
+                    client,
+                    username="bruno_http",
+                    password="outra-senha",
+                ).json()["access_token"]
+            )
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Acesso restrito ao administrador"

@@ -11,7 +11,6 @@ from middlewares import configure_middlewares
 from rate_limit import configure_rate_limiting
 from routes import api_router, oauth_router
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     seed()

@@ -18,7 +18,7 @@
 | 2. Swagger hospedado localmente (v5.17.14) | 0 | 1 | 5 | 2 |
 | 3. Swagger atualizado (v5.33.2) + headers de segurança | **0** | **0** | **1** | **2** |
 
-Scan dos endpoints (`/openapi.json`, `/health` e demais rotas da API): sem alertas High ou Medium. O único alerta Low da etapa anterior (`Cross-Origin-Resource-Policy` ausente) foi corrigido com header (ver Finding 6). **[Confirmar no `zap/relatorio_zap_api.md` do último scan que o alerta sumiu e ajustar esta linha se necessário.]**
+Scan dos endpoints (`/openapi.json`, `/health` e demais rotas da API): sem alertas High ou Medium. O único alerta Low da etapa anterior (`Cross-Origin-Resource-Policy` ausente) foi corrigido com header (ver Finding 6). O relatório `zap/relatorio_zap_api.md` registra 0 alertas High, 0 Medium e 0 Low, com 3 alertas Informational. O alerta `Cross-Origin-Resource-Policy` não consta no relatório atual.
 
 Observação sobre a leitura do relatório: no ZAP, `Informational (Medium)` significa **severidade Informational** com **confiança Medium**. A severidade é a primeira parte do texto.
 
@@ -100,7 +100,7 @@ O contador "ZAP warnings logged" do relatório vem do spider tentando acessar `/
 
 Além dos findings do ZAP, a auditoria corrigiu:
 
-- **Vazamento de hash de senha:** havia uma rota `/me` duplicada em `main.py` que devolvia o usuário sem `response_model`, expondo `hashed_password`. A rota duplicada foi removida; vale a de `routers/router.py`, que usa `UserRead`. Teste: `test_me_does_not_expose_password_hash`.
+- **Vazamento de hash de senha:** havia uma rota `/me` duplicada em `main.py` que devolvia o usuário sem `response_model`, expondo `hashed_password`. A rota duplicada foi removida; vale a de `routes/router.py`, que usa `UserRead`. Teste: `test_me_does_not_expose_password_hash`.
 - **Rate limiting** em `/auth/signin` (10/min), `/auth/signup` (5/min), `/auth/token` e `/predict` (30/min).
 - **Validação de entradas:** `username` (3 a 50 caracteres, `[A-Za-z0-9_.-]`), `password` (8 a 72) e `text` (1 a 2000).
 - **Segredos e banco:** `SECRET_KEY` aleatório no `.env` (não versionado) e `database.db` fora do git.
@@ -111,7 +111,7 @@ Além dos findings do ZAP, a auditoria corrigiu:
 - API sobe sem erros: `uvicorn main:app --host 0.0.0.0 --port 8000`.
 - Autenticação por JWT funcionando (`/auth/signin` e botão Authorize do `/docs`).
 - Dados de teste criados pelo seed: `alice`/`alice123` e `bruno`/`bruno123`.
-- Suíte `pytest tests/ -v` com 16 testes passando e integrada ao GitHub Actions.
+- Suíte `pytest tests/ -v` com 17 testes passando e integrada ao GitHub Actions.
 
 ## Conclusão
 

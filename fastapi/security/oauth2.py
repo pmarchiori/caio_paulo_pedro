@@ -6,9 +6,11 @@ from database import SessionDep
 from models import User
 
 from .jwt import decode_access_token
-
+import os
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "alice")
 
 def get_current_user(session: SessionDep, token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
@@ -30,3 +32,15 @@ def get_current_user(session: SessionDep, token: str = Depends(oauth2_scheme)) -
         raise credentials_exception
 
     return user
+
+
+def get_admin_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if current_user.username != ADMIN_USERNAME:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso restrito ao administrador",
+        )
+
+    return current_user
