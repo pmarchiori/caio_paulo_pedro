@@ -85,7 +85,7 @@ Abra o notebook:
 # Auditoria final de segurança (TP3)
 
 ### Correções aplicadas
-- `/me` não expõe mais `hashed_password` (rota duplicada em `main.py` removida; vale a de `routers/router.py`, com `UserRead`).
+- `/me` não expõe mais `hashed_password` (rota duplicada em `main.py` removida; vale a de `routes/router.py`, com `UserRead`).
 - `/docs` agora serve o Swagger UI **localmente** (`fastapi/static/swagger/`, swagger-ui-dist 5.17.14), sem CDN e sem script inline. A CSP estrita (`script-src 'self'`, `style-src 'self'`) vale para todas as rotas. `/redoc` foi desabilitado. Isso elimina os 3 findings Medium do ZAP (CSP `script-src`/`style-src` com `unsafe-inline` e SRI ausente).
 - Rate limiting em `/auth/signin` (10/min), `/auth/signup` (5/min), `/auth/token` (10/min) e `/predict` (30/min).
 - Validação de entrada: `username` 3-50 (letras, números, `_ . -`), `password` 8-72, `text` 1-2000.

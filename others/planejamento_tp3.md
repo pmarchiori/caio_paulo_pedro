@@ -13,13 +13,32 @@ Motivos:
 - **Treinamento rápido e fácil interpretação.** Como a base tem cerca de 8.469 linhas, o treinamento é rápido, mesmo sem GPU. Além disso, os coeficientes ajudam a entender por que o modelo escolheu determinada intenção, mostrando, por exemplo, quais palavras tiveram mais influência na classificação como "Cancellation request".
 - **Alternativa considerada, mas deixada de lado por enquanto: SVM (`LinearSVC`).** Esse algoritmo também apresenta bons resultados na classificação de textos, mas não gera probabilidades diretamente. Para preencher o campo `confidence`, seria necessário adicionar uma etapa de calibração, como `CalibratedClassifierCV`. Isso aumentaria a complexidade sem trazer uma vantagem clara nesta etapa.
 
-### 1.1 Objetivo e variável-alvo
+### 1.1 Objetivo, variáveis e distribuição das classes
 
-O objetivo é desenvolver um modelo capaz de classificar automaticamente a intenção de um atendimento a partir da descrição escrita pelo usuário (`Ticket Description`). O modelo deverá prever a categoria mais provável, permitindo substituir o mock da rota `POST /predict` por uma previsão real e retornar o resultado no formato esperado pela API, incluindo o campo `confidence`.
+O objetivo é desenvolver um modelo de classificação capaz de prever automaticamente a categoria de um atendimento a partir da descrição escrita pelo cliente. Esse modelo substituirá o comportamento simulado (*mock*) da rota `POST /predict`, mantendo o formato de resposta esperado pela API, incluindo a classe prevista e a confiança da previsão.
 
-**Variável-alvo candidata:** `Ticket Type`, que representa a categoria que o modelo deverá prever.
+**Formulação do problema:**
 
-A definição final do problema será feita em outra tarefa, incluindo a confirmação da variável-alvo, a lista de classes e a distribuição de cada uma. Por enquanto, `Ticket Type` é a opção mais provável, com base nos resultados da análise exploratória dos dados (EDA).
+- **Tipo de aprendizado:** supervisionado, pois a base possui rótulos conhecidos na coluna `Ticket Type`, que serão utilizados como respostas esperadas durante o treinamento.
+- **Tipo de tarefa:** classificação multiclasse, pois o modelo deverá escolher entre cinco categorias de atendimento.
+- **Variável de entrada (X):** `Ticket Description`, que contém a descrição textual do problema relatado pelo cliente.
+- **Variável-alvo (y):** `Ticket Type`, que identifica a categoria do atendimento.
+- **Base utilizada:** `data/customer_support_tickets.csv`, com 8.469 registros e 17 colunas.
+
+A distribuição observada da variável-alvo é apresentada a seguir:
+
+| Classe (`Ticket Type`) | Quantidade | Percentual |
+|---|---:|---:|
+| Refund request | 1.752 | 20,69% |
+| Technical issue | 1.747 | 20,63% |
+| Cancellation request | 1.695 | 20,01% |
+| Product inquiry | 1.641 | 19,38% |
+| Billing inquiry | 1.634 | 19,29% |
+| **Total** | **8.469** | **100,00%** |
+
+As classes apresentam distribuição relativamente equilibrada: os percentuais variam de 19,29% a 20,69%, sem predominância expressiva de uma única categoria. Esse resultado favorece a avaliação comparativa entre classes, embora não dispense a análise de métricas individuais, como precisão (*precision*), revocação (*recall*) e F1-score.
+
+A definição de `Ticket Description` como entrada e `Ticket Type` como alvo estabelece o problema de classificação a ser desenvolvido. Antes do treinamento, será necessário verificar a qualidade dos textos e dos rótulos, definir a separação entre treino e teste e evitar vazamento de dados (*data leakage*). A avaliação deverá considerar métricas globais e por classe, além da compatibilidade entre as probabilidades produzidas pelo modelo e o campo `confidence` da API.
 
 ### 1.2 Etapas de treinamento e avaliação
 

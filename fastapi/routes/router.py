@@ -5,8 +5,7 @@ from sqlmodel import select
 from database import SessionDep
 from models import Prediction, PredictionRead, PredictRequest, PredictResponse, User, UserRead
 from rate_limit import limiter
-from security import get_current_user
-
+from security import get_admin_user, get_current_user
 
 api_router = APIRouter()
 
@@ -69,8 +68,8 @@ def predict(
     request: Request,
     payload: PredictRequest,
     session: SessionDep,
-    current_user: User = Depends(get_current_user),
-):
+    current_user: User = Depends(get_admin_user),
+    ):
     fake_intent, fake_confidence = mock_predict(payload.text)
 
     prediction = Prediction(
